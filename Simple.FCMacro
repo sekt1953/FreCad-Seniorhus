@@ -1,0 +1,171 @@
+# ================================================================================
+# ================================================================================
+# Simple Unit and Alias Manager for FreeCad Spreadsheet
+# ================================================================================
+__title__   = "Simple Unit and Alias manager"
+__author__  = "Svenn-Erik K. Thomsen"
+__version__ = "01.00"
+__date__    = "2019/04/20"
+__Comment__ = ""
+__Wiki__ = ""
+__Help__ = ""
+__Status__ = "beta"
+__Requires__ = "FreeCAD 0.17"
+
+from PySide import QtGui, QtCore
+from FreeCAD import Gui
+import os
+import string
+App = FreeCAD
+Gui = FreeCADGui
+
+# ===== Global variables =================================
+alphabet_list = list(string.ascii_uppercase)
+actions_list = ["Select some Action !!","Set Unit and Aliases","Clear Unit & Aliases"]
+minRow = 2
+maxRow = 50
+
+
+class p():
+	def aliasManager(self):
+		try:
+
+# ===== Variables ==============================================
+			mode = self.QCBAction.currentText()
+			columnAlias = self.QCBAlias.currentText()
+			columnUnit  = self.lCUnit.text()
+			columnValue = self.lCValue.text()
+			rowFrom     = self.QSBFrom.value()
+			rowTo       = self.QSBTo.value()
+
+# ===== Mode - Set ==============================================
+			if mode == actions_list[1]:
+				self.QCBAction.setCurrentIndex(0)
+				for i in range(rowFrom,rowTo+1):
+					cellAlias = columnAlias + str(i)
+					cellUnit  = columnUnit + str(i)
+					cellValue = columnValue + str(i)
+					App.ActiveDocument.Spreadsheet.setAlias(cellValue, App.ActiveDocument.Spreadsheet.getContents(cellAlias))
+					App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, App.ActiveDocument.Spreadsheet.getContents(cellUnit))
+					App.ActiveDocument.recompute()
+
+# ===== Mode - Clear ==============================================
+			if mode == actions_list[2]:
+				self.QCBAction.setCurrentIndex(0)
+				for i in range(rowFrom,rowTo+1):
+					cellAlias = columnAlias + str(i)
+					cellUnit  = columnUnit + str(i)
+					cellValue = columnValue + str(i)
+					App.ActiveDocument.Spreadsheet.setAlias(cellValue, "")
+					App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, "")
+					App.ActiveDocument.recompute()
+# ===== If errors ==============================================
+			else:
+				FreeCAD.Console.PrintError("\nError or 'TODO'\n")
+		except:
+			FreeCAD.Console.PrintError("\nUnable to complete task\n")
+			#self.close()
+	def close(self):
+		self.dialog.hide()
+
+# ========================================================
+# ===== GUI menu ========================================
+# ========================================================
+	def __init__(self):
+		self.dialog = None
+		self.dialog = QtGui.QDialog()
+		self.dialog.resize(400,140)
+		self.dialog.setWindowTitle("Simple Unit & Alias Manager")
+
+		# Grid setup
+		lC0 = QtGui.QLabel("Columns:")
+		lC0.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+		# Columns
+		lC1 = QtGui.QLabel("Alias:")
+		lC1.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+		self.QCBAlias = QtGui.QComboBox()
+		for i in alphabet_list:
+			self.QCBAlias.addItem(i)
+		self.QCBAlias.setCurrentIndex(0) # set default item 'A'
+		self.QCBAlias.currentIndexChanged.connect(self.onAliasChange)
+
+		lC2 = QtGui.QLabel("Display unit:")
+		lC2.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+		self.lCUnit = QtGui.QLabel(alphabet_list[self.QCBAlias.currentIndex()+1])
+		self.lCUnit.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+		lC3 = QtGui.QLabel("Value:")
+		lC3.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+		self.lCValue = QtGui.QLabel(alphabet_list[self.QCBAlias.currentIndex()+2])
+		self.lCValue.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+		# Rows
+		lR0 = QtGui.QLabel("Rows:")
+		lR0.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+		lR1 = QtGui.QLabel("From Row:")
+		lR1.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+		self.QSBFrom = QtGui.QSpinBox()
+		self.QSBFrom.setValue(minRow) # set default item
+		self.QSBFrom.setSingleStep(1)
+		self.QSBFrom.setMinimum(minRow)
+		self.QSBFrom.setMaximum(maxRow)
+
+		lR2 = QtGui.QLabel("To Row:")
+		lR2.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+		self.QSBTo = QtGui.QSpinBox()
+		self.QSBTo.setValue(maxRow) # set default item
+		self.QSBTo.setSingleStep(1)
+		self.QSBTo.setMinimum(minRow)
+		self.QSBTo.setMaximum(maxRow)
+
+		# Action
+		lA0 = QtGui.QLabel("Action:")
+		lA0.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+		self.QCBAction = QtGui.QComboBox()
+		for i in actions_list:
+			self.QCBAction.addItem(i)
+		self.QCBAction.setCurrentIndex(0) # set default item
+
+		okbox = QtGui.QDialogButtonBox(self.dialog)
+		okbox.setOrientation(QtCore.Qt.Horizontal)
+		okbox.setStandardButtons(QtGui.QDialogButtonBox.Ok|QtGui.QDialogButtonBox.Close)
+
+		grid = QtGui.QGridLayout()
+		grid.setSpacing(10)
+
+		# Columns:
+		grid.addWidget(lC0,            1, 0, 1, 1)
+		grid.addWidget(lC1,            2, 1, 1, 1)
+		grid.addWidget(self.QCBAlias,  2, 2, 1, 1)
+		grid.addWidget(lC2,            3, 1, 1, 1)
+		grid.addWidget(self.lCUnit,    3, 2, 1, 1)
+		grid.addWidget(lC3,            4, 1, 1, 1)
+		grid.addWidget(self.lCValue,   4, 2, 1, 1)
+		# Rows
+		grid.addWidget(lR0,            5, 0, 1, 1)
+		grid.addWidget(lR1,            6, 1, 1, 1)
+		grid.addWidget(self.QSBFrom,   6, 2, 1, 1)
+		grid.addWidget(lR2,            7, 1, 1, 1)
+		grid.addWidget(self.QSBTo,     7, 2, 1, 1)
+		# Action
+		grid.addWidget(lA0,            8, 0, 1, 1)
+		grid.addWidget(self.QCBAction, 9, 1, 1, 2)
+		# cancel, OK
+		grid.addWidget(okbox,         10, 2, 1, 1)
+
+		self.dialog.setLayout(grid)
+		self.QCBAlias.setFocus()
+
+		QtCore.QObject.connect(okbox, QtCore.SIGNAL("rejected()"), self.close)
+		QtCore.QObject.connect(okbox, QtCore.SIGNAL("accepted()"), self.aliasManager)
+		QtCore.QMetaObject.connectSlotsByName(self.dialog)
+		self.dialog.show()
+		self.dialog.exec_()
+
+	def onAliasChange(self):
+		#FreeCAD.Console.PrintMessage("\nonAliasChange: "+self.QCBAlias.currentText()+" "+ str(self.QCBAlias.currentIndex()))
+		self.lCUnit.setText(alphabet_list[self.QCBAlias.currentIndex()+1])
+		self.lCValue.setText(alphabet_list[self.QCBAlias.currentIndex()+2])
+p()
