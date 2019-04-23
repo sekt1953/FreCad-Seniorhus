@@ -1,0 +1,19 @@
+Alias	Måleenhed	Værdi
+
+KnapHojde	mm	14
+KnapRadius	mm	16
+
+SkortHojde	mm	6
+SkortVinkle	deg	33
+
+GroftDybde	mm	2
+GroftekantsBredde	mm	2.5
+GroftekantsAfrunding	mm	1
+
+RilleDybde	mm	1.5
+RillebundBredde	mm	1.2
+RilletopBredde	mm	2
+RilleAntal		24
+
+AkselHojde	mm	16
+AkselRadius	mm	3
