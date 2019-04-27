@@ -1,16 +1,39 @@
 # ================================================================================
-# ================================================================================
 # Simple Unit and Alias Manager for FreeCad Spreadsheet
+# ================================================================================
+# ABOUT
+# ================================================================================
+# version v1.0
+# Macro developed for FreeCAD (http://www.freecadweb.org/).
+# This macro helps managing Display Unit & Aliases inside FreeCAD Spreadsheet
+# workbench. It is able to:
+#        - create aliases and Unit based on Collumns selected before runnin
+#        - Check for valied Unit and Alias value and mark error, see youtube video
+#          for more info.
+#        - delete unit & aliases
+#
+# More information might be found on FreeCAD forums: http://forum.freecadweb.org/
+#
+# LICENSE
+# ================================================================================
+# Original work done by tarihatari (https://github.com/tarihatari/FreeCAD_Macros)
+# Improved by Pablo Gil Fernandez
+# Improved by Svenn-Erik K. Thomsen
+# Copyright (c) 2019 tarihatari & Pablo Gil Fernandez & Svenn-Erik K. Thomsen
+#
+# This work is licensed under GNU Lesser General Public License (LGPL).
+# To view a copy of this license, visit https://www.gnu.org/licenses/lgpl-3.0.html.
+#
 # ================================================================================
 
 __Name__          = 'Not that Simple Unit & Alias Manager'
 __Comment__       = 'Macro to set and Clear Unit and Alias in FreeCad Spreadsheet, if the Cell Properties Style in the Alias Columns is set to somthing Alias will not bee added to corresponding Value Cell'
 __Author__        = 'Svenn-Erik Krengelund Thomsen'
-__Version__       = '01.00.00'
+__Version__       = '01.01.00'
 __Date__          = '2019-04-26'
-__License__       = 'GPL-3.0-only or GPL-3.0-or-later'
-__Web__           = ''
-__Wiki__          = ''
+__License__       = 'GNU Lesser General Public License v3.0 or later'
+__Web__           = 'https://www.youtube.com/channel/UCYTILmAt4gn9v8h7s6ZM49g'
+__Wiki__          = 'https://github.com/sekt1953'
 __Icon__          = ''
 __Help__          = ''
 __Status__        = 'Stable'
@@ -27,10 +50,11 @@ App = FreeCAD
 Gui = FreeCADGui
 
 # ===== Global variables =================================
-alphabet_list = list(string.ascii_uppercase)
-actions_list = ["Select some Action !!","Set Unit and Aliases","Clear Unit & Aliases","Exit Program"]
-minRow = 2
-maxRow = 99
+alphabet_list  = list(string.ascii_uppercase)
+actions_list   = ["Select some Action !!","Set Unit and Aliases","Clear Unit & Aliases","Exit Program"]
+validunit_list = ['','mm','m','cm','dm','km''in','\'','ft',"'",'th','kg','g','mg','t','lb','oz','st','cwt','deg','rad','gon','s','min','h','A','K','cd','mol','l']
+minRow         = 2
+maxRow         = 99
 
 class p():
 	def aliasManager(self):
@@ -46,33 +70,57 @@ class p():
 # ===== Mode - Set Unit & Alias ================================
 			if mode == actions_list[1]:
 				self.QCBAction.setCurrentIndex(0)
-				for i in range(rowFrom,rowTo+1):
+				for i in range(rowFrom,rowTo):
 					cellAlias = columnAlias + str(i)
 					cellUnit  = columnUnit + str(i)
 					cellValue = columnValue + str(i)
 					cellStyle = str(App.ActiveDocument.Spreadsheet.getStyle(cellAlias))
 					if cellStyle.find('None') != -1:
 						App.ActiveDocument.Spreadsheet.setAlias(cellValue, App.ActiveDocument.Spreadsheet.getContents(cellAlias))
-					App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, App.ActiveDocument.Spreadsheet.getContents(cellUnit))
+					else:
+						App.ActiveDocument.Spreadsheet.setAlias(cellValue, "")
+					if App.ActiveDocument.Spreadsheet.getContents(cellUnit) in validunit_list:
+						App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, App.ActiveDocument.Spreadsheet.getContents(cellUnit))
+						App.ActiveDocument.Spreadsheet.setStyle(cellUnit, '')
+						App.ActiveDocument.Spreadsheet.setForeground(cellUnit, (0.000000,0.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setBackground(cellUnit, (1.000000,1.000000,1.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setAlignment(cellUnit, 'center|vcenter|vimplied')
+					else:
+						App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, "")
+						App.ActiveDocument.Spreadsheet.setStyle(cellUnit, 'bold|italic|underline')
+						App.ActiveDocument.Spreadsheet.setForeground(cellUnit, (1.000000,1.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setBackground(cellUnit, (1.000000,0.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setAlignment(cellUnit, 'center|vcenter|vimplied')
 					App.ActiveDocument.recompute()
 
 # ===== Mode - Clear Unit & Alias ==============================
 			elif mode == actions_list[2]:
 				self.QCBAction.setCurrentIndex(0)
-				for i in range(rowFrom,rowTo+1):
+				for i in range(rowFrom,rowTo):
 					cellAlias = columnAlias + str(i)
 					cellUnit  = columnUnit + str(i)
 					cellValue = columnValue + str(i)
 					App.ActiveDocument.Spreadsheet.setAlias(cellValue, "")
 					App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, "")
+					if App.ActiveDocument.Spreadsheet.getContents(cellUnit) in validunit_list:
+						App.ActiveDocument.Spreadsheet.setStyle(cellUnit, '')
+						App.ActiveDocument.Spreadsheet.setForeground(cellUnit, (0.000000,0.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setBackground(cellUnit, (1.000000,1.000000,1.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setAlignment(cellUnit, 'center|vcenter|vimplied')
+					else:
+						App.ActiveDocument.Spreadsheet.setDisplayUnit(cellValue, "")
+						App.ActiveDocument.Spreadsheet.setStyle(cellUnit, 'bold|italic|underline')
+						App.ActiveDocument.Spreadsheet.setForeground(cellUnit, (1.000000,1.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setBackground(cellUnit, (1.000000,0.000000,0.000000,1.000000))
+						App.ActiveDocument.Spreadsheet.setAlignment(cellUnit, 'center|vcenter|vimplied')
 					App.ActiveDocument.recompute()
 # ===== Mode - Exit Program ====================================
 			elif mode == actions_list[3]:
 				self.QCBAction.setCurrentIndex(0)
 				self.close()
 # ===== If errors ==============================================
-			else:
-				FreeCAD.Console.PrintMessage("\n "+mode+"\n")
+			#else:
+			#	FreeCAD.Console.PrintMessage("\n "+mode+"\n" + str(validunit_list[28]))
 				#xx = str(App.ActiveDocument.Spreadsheet.getStyle('A3'))
 				#if xx.find('italic') != -1:
 				#	FreeCAD.Console.PrintMessage("\nThis is in Italic")
@@ -83,6 +131,23 @@ class p():
 		except:
 			FreeCAD.Console.PrintError("\nUnable to complete task\n")
 			#self.close()
+
+	def onRowFromChange(self):
+		#FreeCAD.Console.PrintMessage("\nonRowFromChange: "+ str(self.QSBFrom.value()))
+		self.QSBTo.setMinimum(self.QSBFrom.value())
+
+	def onRowToChange(self):
+		#FreeCAD.Console.PrintMessage("\nonRowToChange: "+ str(self.QSBTo.value()))
+		self.QSBFrom.setMaximum(self.QSBTo.value())
+
+	def onActionChange(self):
+		#FreeCAD.Console.PrintMessage("\nonActionChange: "+self.QCBAction.currentText()+" "+ str(self.QCBAction.currentIndex()))
+		self.aliasManager()
+
+	def onAliasChange(self):
+		#FreeCAD.Console.PrintMessage("\nonAliasChange: "+self.QCBAlias.currentText()+" "+ str(self.QCBAlias.currentIndex()))
+		self.lCUnit.setText(alphabet_list[self.QCBAlias.currentIndex()+1])
+		self.lCValue.setText(alphabet_list[self.QCBAlias.currentIndex()+2])
 
 	def close(self):
 		self.dialog.hide()
@@ -141,6 +206,8 @@ class p():
 		self.QSBTo.valueChanged.connect(self.onRowToChange)
 
 		# Action
+		self.QPBAbout = QtGui.QPushButton('About')
+
 		lA0 = QtGui.QLabel("Action:")
 		lA0.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 		self.QCBAction = QtGui.QComboBox()
@@ -169,6 +236,7 @@ class p():
 		grid.addWidget(self.QSBTo,     7, 2, 1, 1)
 		# Action
 		grid.addWidget(lA0,            8, 0, 1, 1)
+		grid.addWidget(self.QPBAbout,  9, 0, 1, 1)
 		grid.addWidget(self.QCBAction, 9, 1, 1, 2)
 
 		self.dialog.setLayout(grid)
@@ -176,21 +244,4 @@ class p():
 
 		self.dialog.show()
 		self.dialog.exec_()
-
-	def onRowFromChange(self):
-		#FreeCAD.Console.PrintMessage("\nonRowFromChange: "+ str(self.QSBFrom.value()))
-		self.QSBTo.setMinimum(self.QSBFrom.value())
-
-	def onRowToChange(self):
-		#FreeCAD.Console.PrintMessage("\nonRowToChange: "+ str(self.QSBTo.value()))
-		self.QSBFrom.setMaximum(self.QSBTo.value())
-
-	def onActionChange(self):
-		#FreeCAD.Console.PrintMessage("\nonActionChange: "+self.QCBAction.currentText()+" "+ str(self.QCBAction.currentIndex()))
-		self.aliasManager()
-
-	def onAliasChange(self):
-		#FreeCAD.Console.PrintMessage("\nonAliasChange: "+self.QCBAlias.currentText()+" "+ str(self.QCBAlias.currentIndex()))
-		self.lCUnit.setText(alphabet_list[self.QCBAlias.currentIndex()+1])
-		self.lCValue.setText(alphabet_list[self.QCBAlias.currentIndex()+2])
 p()
