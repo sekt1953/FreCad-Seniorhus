@@ -1,0 +1,96 @@
+Dimensional constraints
+Alias	Måleenhed	Værdi		Formel
+KnapHojde	mm	14
+KnapRadius	mm	16
+
+SkortHojde	mm	6
+SkortVinkle	deg	33
+
+GroftDybde	mm	2
+GroftekantsBredde	mm	2.5
+GroftekantsAfrunding	mm	1
+
+RilleAntal		24
+RilleDybde	mm	=KnapRadius / 10		"\"=KnapRadius / 10"
+RilletopBredde	mm	=tan(360 / (RilleAntal * 2)) * KnapRadius		"\"=tan(360 / (RilleAntal * 2)) * KnapRadius"
+RillebundBredde	mm	=tan(360 / (RilleAntal * 2)) * (KnapRadius - RilleDybde)		"\"=tan(360 / (RilleAntal * 2)) * (KnapRadius - RilleDybde)"
+
+AkselHojde	mm	=KnapHojde + SkortHojde - (GroftDybde + 2)		"\"=KnapHojde + SkortHojde - (GroftDybde + 2)"
+AkselRadius	mm	3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
