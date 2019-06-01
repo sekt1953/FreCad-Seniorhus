@@ -1,0 +1,4 @@
+arial.ttf font kan hentest her:
+	https://github.com/JotJunior/PHP-Boleto-ZF2/blob/master/public/assets/fonts/arial.ttf
+vera.ttf font kan hentest her:
+	https://github.com/JotJunior/PHP-Boleto-ZF2/blob/master/public/assets/fonts/vera.ttf
